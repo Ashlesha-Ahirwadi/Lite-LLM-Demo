@@ -1,0 +1,408 @@
+<title>Gateway Demo Console</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root {
+    --accent: #4f46e5;
+    --accent-dim: #eef0fd;
+    --bg: #f7f7f9;
+    --panel: #ffffff;
+    --text: #1c1c1f;
+    --muted: #6b6b76;
+    --border: #e4e4e9;
+    --user-bubble: var(--accent);
+    --assistant-bubble: #f0f0f3;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  header h1 {
+    font-size: 16px;
+    margin: 0;
+    font-weight: 600;
+  }
+
+  header p {
+    margin: 2px 0 0;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+
+  .header-title { flex: 1 1 auto; min-width: 200px; }
+
+  .header-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  label.field-label {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  input[type="text"],
+  select {
+    font: inherit;
+    padding: 7px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--panel);
+    color: var(--text);
+  }
+
+  #mode-select { width: 230px; }
+
+  button {
+    font: inherit;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    cursor: pointer;
+  }
+
+  #reset-btn {
+    background: var(--panel);
+    border-color: var(--border);
+    color: var(--text);
+  }
+  #reset-btn:hover { background: #f2f2f5; }
+
+  #send-btn {
+    background: var(--accent);
+    color: white;
+  }
+  #send-btn:hover { background: #4338ca; }
+  #send-btn:disabled { background: #b7b3f5; cursor: default; }
+
+  main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .empty-state {
+    margin: auto;
+    text-align: center;
+    color: var(--muted);
+    max-width: 420px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .turn {
+    display: flex;
+    flex-direction: column;
+    max-width: 640px;
+  }
+  .turn.user { align-self: flex-end; align-items: flex-end; }
+  .turn.assistant { align-self: flex-start; align-items: flex-start; }
+  .turn.error { align-self: center; align-items: center; max-width: 90%; }
+
+  .bubble {
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-size: 14.5px;
+    line-height: 1.45;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .turn.user .bubble {
+    background: var(--user-bubble);
+    color: white;
+    border-bottom-right-radius: 4px;
+  }
+  .turn.assistant .bubble {
+    background: var(--assistant-bubble);
+    color: var(--text);
+    border-bottom-left-radius: 4px;
+  }
+  .turn.error .bubble {
+    background: #fdecec;
+    color: #9c1c1c;
+    border: 1px solid #f3c8c8;
+  }
+
+  .badge-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 5px;
+    flex-wrap: wrap;
+  }
+  .badge {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 10.5px;
+    color: var(--muted);
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 2px 7px;
+    border-radius: 10px;
+  }
+  .badge.mode-gateway { color: #1a7f37; border-color: #bfe6c9; background: #eefbf1; }
+  .badge.mode-direct { color: #9c1c1c; border-color: #f3c8c8; background: #fdecec; }
+
+  details.inspector {
+    margin-top: 6px;
+    max-width: 100%;
+  }
+  details.inspector summary {
+    cursor: pointer;
+    font-size: 11.5px;
+    color: var(--accent);
+    font-weight: 600;
+    list-style: none;
+    user-select: none;
+  }
+  details.inspector summary::-webkit-details-marker { display: none; }
+  details.inspector summary::before {
+    content: "▸ ";
+  }
+  details.inspector[open] summary::before {
+    content: "▾ ";
+  }
+  details.inspector pre {
+    margin: 6px 0 0;
+    padding: 10px 12px;
+    background: #1e1e24;
+    color: #d7d7de;
+    border-radius: 8px;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 11.5px;
+    line-height: 1.5;
+    overflow-x: auto;
+    max-width: 560px;
+  }
+  details.inspector .inspector-caption {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 400;
+    margin-left: 4px;
+  }
+
+  footer {
+    padding: 14px 20px 18px;
+    border-top: 1px solid var(--border);
+    background: var(--panel);
+    display: flex;
+    gap: 10px;
+  }
+  #message-input {
+    flex: 1;
+    padding: 10px 14px;
+    font-size: 14.5px;
+  }
+
+  .typing {
+    align-self: flex-start;
+    color: var(--muted);
+    font-size: 13px;
+    font-style: italic;
+  }
+</style>
+
+<body>
+  <header>
+    <div class="header-title">
+      <h1>Gateway Demo Console</h1>
+      <p>Talks only to this gateway's own <code>/v1/responses</code> — the Anthropic key never reaches your browser.</p>
+    </div>
+    <div class="header-controls">
+      <label class="field-label" for="mode-select">mode</label>
+      <select id="mode-select">
+        <option value="anthropic-gateway" selected>Through gateway — remembers</option>
+        <option value="anthropic-direct">Direct to model — forgets</option>
+      </select>
+      <button id="reset-btn" type="button">New conversation</button>
+    </div>
+  </header>
+
+  <main id="chat">
+    <div class="empty-state" id="empty-state">
+      Both modes hit the exact same Anthropic model underneath — the dropdown only
+      changes gateway behavior. Send a message, then a follow-up that depends on it
+      (e.g. tell it a fact, then ask about that fact). In <strong>Through gateway</strong>
+      mode the follow-up correctly recalls it; in <strong>Direct to model</strong> mode it
+      won't, even though the request panel below shows the browser sent the exact
+      same short line plus id both times. That's the gateway's session layer at work,
+      not the model "remembering."
+    </div>
+  </main>
+
+  <footer>
+    <form id="chat-form" style="display: contents;">
+      <input type="text" id="message-input" placeholder="Type a message…" autocomplete="off" />
+      <button id="send-btn" type="submit">Send</button>
+    </form>
+  </footer>
+
+  <script>
+    const chat = document.getElementById("chat");
+    const emptyState = document.getElementById("empty-state");
+    const form = document.getElementById("chat-form");
+    const messageInput = document.getElementById("message-input");
+    const modeSelect = document.getElementById("mode-select");
+    const sendBtn = document.getElementById("send-btn");
+    const resetBtn = document.getElementById("reset-btn");
+
+    // The one piece of client-side state that makes this a "session": the id
+    // of the last response. Everything else (the actual conversation history)
+    // lives server-side in the gateway's Redis store, not here.
+    let previousResponseId = null;
+
+    const MODE_LABELS = {
+      "anthropic-gateway": "gateway (remembers)",
+      "anthropic-direct": "direct (forgets)",
+    };
+
+    function addTurn({ role, text, requestBody, responseId, mode }) {
+      emptyState.remove();
+
+      const turn = document.createElement("div");
+      turn.className = `turn ${role}`;
+
+      const bubble = document.createElement("div");
+      bubble.className = "bubble";
+      bubble.textContent = text;
+      turn.appendChild(bubble);
+
+      if (role === "assistant" && (responseId || mode)) {
+        const row = document.createElement("div");
+        row.className = "badge-row";
+
+        if (mode) {
+          const modeBadge = document.createElement("div");
+          modeBadge.className = `badge ${mode === "anthropic-direct" ? "mode-direct" : "mode-gateway"}`;
+          modeBadge.textContent = MODE_LABELS[mode] || mode;
+          row.appendChild(modeBadge);
+        }
+        if (responseId) {
+          const idBadge = document.createElement("div");
+          idBadge.className = "badge";
+          idBadge.textContent = `id: ${responseId}`;
+          row.appendChild(idBadge);
+        }
+
+        turn.appendChild(row);
+      }
+
+      if (requestBody) {
+        const details = document.createElement("details");
+        details.className = "inspector";
+        details.open = true;
+
+        const summary = document.createElement("summary");
+        summary.textContent = "Request sent to gateway";
+        const caption = document.createElement("span");
+        caption.className = "inspector-caption";
+        caption.textContent = "(exactly this, no prior messages)";
+        summary.appendChild(caption);
+        details.appendChild(summary);
+
+        const pre = document.createElement("pre");
+        pre.textContent = JSON.stringify(requestBody, null, 2);
+        details.appendChild(pre);
+
+        turn.appendChild(details);
+      }
+
+      chat.appendChild(turn);
+      chat.scrollTop = chat.scrollHeight;
+      return turn;
+    }
+
+    function addTyping() {
+      const el = document.createElement("div");
+      el.className = "typing";
+      el.id = "typing-indicator";
+      el.textContent = "Waiting for the gateway…";
+      chat.appendChild(el);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function removeTyping() {
+      document.getElementById("typing-indicator")?.remove();
+    }
+
+    async function sendMessage(text) {
+      const mode = modeSelect.value;
+      // Only `model` changes with the mode dropdown -- input and
+      // previous_response_id are built identically either way, so the
+      // inspector panel below proves the browser sent the same request.
+      const requestBody = { model: mode, input: text };
+      if (previousResponseId) {
+        requestBody.previous_response_id = previousResponseId;
+      }
+
+      addTurn({ role: "user", text, requestBody });
+
+      sendBtn.disabled = true;
+      addTyping();
+
+      try {
+        const res = await fetch("/v1/responses", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(requestBody),
+        });
+        const data = await res.json();
+        removeTyping();
+
+        if (!res.ok) {
+          const message = data?.error?.message || `HTTP ${res.status}`;
+          addTurn({ role: "error", text: message });
+          return;
+        }
+
+        previousResponseId = data.id;
+        const replyText = data.output?.[0]?.content?.[0]?.text ?? "(no text in response)";
+        addTurn({ role: "assistant", text: replyText, responseId: data.id, mode });
+      } catch (err) {
+        removeTyping();
+        addTurn({ role: "error", text: `Network error: ${err.message}` });
+      } finally {
+        sendBtn.disabled = false;
+      }
+    }
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const text = messageInput.value.trim();
+      if (!text) return;
+      messageInput.value = "";
+      sendMessage(text);
+    });
+
+    resetBtn.addEventListener("click", () => {
+      previousResponseId = null;
+      chat.innerHTML = "";
+      chat.appendChild(emptyState);
+      messageInput.focus();
+    });
+
+    messageInput.focus();
+  </script>
+</body>

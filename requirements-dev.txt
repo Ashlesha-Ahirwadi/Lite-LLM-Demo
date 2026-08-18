@@ -1,0 +1,7 @@
+-r requirements.txt
+
+# test / examples -- not needed in the runtime container image
+pytest>=8.3
+pytest-asyncio>=0.24
+openai>=1.50
+fakeredis>=2.25
