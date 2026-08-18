@@ -77,6 +77,15 @@ For a plain-curl version of the same two-turn flow, see
 
 `docker compose up`, then open **http://localhost:8000** — this page is a throwaway demo harness for visualizing the gateway's session-threading in a browser, not part of the product. Its mode dropdown ("Direct to model" vs. "Through gateway") is itself a demonstration device: both options call the exact same Anthropic model, so any difference in whether a follow-up remembers earlier context comes entirely from the gateway's session layer, not the model.
 
+## Deploying (Render)
+
+`render.yaml` at the repo root is a [Render Blueprint](https://render.com/docs/blueprint-spec) defining the gateway (as a Docker web service) plus a free Key Value (Redis) instance, wired together automatically. To deploy:
+
+1. Push this repo to GitHub (already done if you're reading this on GitHub).
+2. In the Render dashboard: **New → Blueprint**, connect this repo. Render detects `render.yaml` and provisions both services.
+3. When prompted, set `ANTHROPIC_API_KEY` — Render asks for `sync: false` env vars during blueprint creation, so your key is entered directly in Render's dashboard and never stored in this repo.
+4. Every push to `main` redeploys automatically.
+
 ## Running tests
 
 ```bash

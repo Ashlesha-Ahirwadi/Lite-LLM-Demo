@@ -1,0 +1,32 @@
+services:
+  - type: keyvalue
+    name: litellm-gateway-redis
+    plan: free
+    ipAllowList:
+      - source: 0.0.0.0/0
+        description: everywhere
+
+  - type: web
+    name: litellm-gateway
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      # Set in the Render dashboard after the blueprint is created --
+      # never stored in this file or in git.
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ANTHROPIC_MODEL
+        value: claude-haiku-4-5-20251001
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: litellm-gateway-redis
+          property: connectionString
+      - key: SESSION_TTL_SECONDS
+        value: "3600"
+      - key: DEFAULT_MAX_TOKENS
+        value: "1024"
+      - key: MODEL_MAP
+        value: "{}"
