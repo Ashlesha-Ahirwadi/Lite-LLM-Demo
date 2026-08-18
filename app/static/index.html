@@ -409,9 +409,181 @@
     0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
     30% { transform: translateY(-3px); opacity: 1; }
   }
+
+  .about-btn {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border-radius: 50%;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-weight: 700;
+    font-size: 13px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .about-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .overlay[hidden] { display: none; }
+
+  .overlay-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(12, 12, 22, 0.55);
+    backdrop-filter: blur(2px);
+    animation: fadeIn 0.18s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .overlay-panel {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 440px;
+    max-height: 88vh;
+    overflow-y: auto;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    padding: 26px 26px 20px;
+    animation: popIn 0.2s ease;
+  }
+  @keyframes popIn {
+    from { opacity: 0; transform: translateY(8px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .overlay-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border-radius: 50%;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .overlay-close:hover { color: var(--text); }
+
+  .intro-card h2 {
+    font-size: 16px;
+    margin: 0 0 8px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    padding-right: 20px;
+  }
+  .intro-card p {
+    margin: 0 0 8px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+  .intro-links {
+    margin-top: 10px;
+    font-size: 12.5px;
+  }
+  .intro-links a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .intro-links a:hover { text-decoration: underline; }
+  .intro-links .dot { color: var(--muted); opacity: 0.5; margin: 0 6px; }
+
+  .intro-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 18px 0;
+  }
+
+  .intro-steps {
+    margin: 0 0 12px;
+    padding-left: 18px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text);
+  }
+  .intro-steps li { margin-bottom: 4px; }
+  .intro-steps strong { color: var(--accent); font-weight: 600; }
+
+  .intro-note {
+    margin: 0;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border);
+  }
+
+  .overlay-cta {
+    width: 100%;
+    margin-top: 20px;
+    justify-content: center;
+    border-radius: 10px;
+    padding: 11px;
+    font-size: 14px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: white;
+    box-shadow: 0 2px 8px -2px color-mix(in srgb, var(--accent) 60%, transparent);
+  }
+  .overlay-cta:hover { filter: brightness(1.06); }
+
+  @media (max-width: 620px) {
+    .overlay-panel { padding: 22px 18px 18px; }
+  }
 </style>
 
 <body>
+  <div class="overlay" id="intro-overlay">
+    <div class="overlay-backdrop" id="overlay-backdrop"></div>
+    <div class="overlay-panel" role="dialog" aria-modal="true" aria-labelledby="intro-heading-1">
+      <button class="overlay-close" id="overlay-close" type="button" aria-label="Close">×</button>
+
+      <div class="intro-card">
+        <h2 id="intro-heading-1">Hi, I'm Ashlesha 👋</h2>
+        <p>[one-sentence bio — e.g. AI/ML engineer, MS in AI @ Northwestern]</p>
+        <p>This is a mini AI gateway that gives a stateless model (Anthropic) OpenAI-style <code>/responses</code> memory — the gateway does the remembering, not the model.</p>
+        <div class="intro-links">
+          <a href="#">GitHub repo</a><span class="dot">·</span><a href="#">LinkedIn</a><span class="dot">·</span><a href="#">Portfolio</a>
+        </div>
+      </div>
+
+      <div class="intro-divider"></div>
+
+      <div class="intro-card">
+        <h2>See the gateway make a forgetful model remember</h2>
+        <ol class="intro-steps">
+          <li>In <strong>Through gateway — remembers</strong> mode, tell it something: "My name is Ashlesha."</li>
+          <li>Switch to <strong>Direct to model — forgets</strong> and ask "What's my name?" → it won't know.</li>
+          <li>Switch back to <strong>Through gateway — remembers</strong> and ask again → it remembers.</li>
+        </ol>
+        <p class="intro-note">Watch the inspector panel — the browser sends the same short message both times. The only thing that changes is whether the gateway is on.</p>
+      </div>
+
+      <button class="overlay-cta" id="overlay-dismiss" type="button">Got it — let's try it</button>
+    </div>
+  </div>
+
   <div class="app">
     <header>
       <div class="header-title">
@@ -426,6 +598,7 @@
         </div>
       </div>
       <div class="header-controls">
+        <button class="about-btn" id="about-btn" type="button" title="About this demo" aria-label="About this demo">?</button>
         <label class="field-label" for="mode-select">mode</label>
         <select id="mode-select">
           <option value="anthropic-gateway" selected>Through gateway — remembers</option>
@@ -468,6 +641,34 @@
     const modeSelect = document.getElementById("mode-select");
     const sendBtn = document.getElementById("send-btn");
     const resetBtn = document.getElementById("reset-btn");
+    const aboutBtn = document.getElementById("about-btn");
+    const introOverlay = document.getElementById("intro-overlay");
+    const overlayBackdrop = document.getElementById("overlay-backdrop");
+    const overlayDismissBtn = document.getElementById("overlay-dismiss");
+    const overlayCloseBtn = document.getElementById("overlay-close");
+
+    // In-memory only (no localStorage): the overlay shows once automatically
+    // on load, and after that only when the "?" button is clicked again --
+    // it should never reappear on its own within the same page load.
+    let hasSeenIntro = false;
+
+    function showIntro() {
+      introOverlay.hidden = false;
+    }
+
+    function hideIntro() {
+      introOverlay.hidden = true;
+      hasSeenIntro = true;
+      messageInput.focus();
+    }
+
+    overlayDismissBtn.addEventListener("click", hideIntro);
+    overlayCloseBtn.addEventListener("click", hideIntro);
+    overlayBackdrop.addEventListener("click", hideIntro);
+    aboutBtn.addEventListener("click", showIntro);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !introOverlay.hidden) hideIntro();
+    });
 
     // The one piece of client-side state that makes this a "session": the id
     // of the last response. Everything else (the actual conversation history)
@@ -620,7 +821,5 @@
       chat.appendChild(emptyState);
       messageInput.focus();
     });
-
-    messageInput.focus();
   </script>
 </body>
