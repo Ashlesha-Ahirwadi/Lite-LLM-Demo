@@ -9,7 +9,11 @@ import os
 
 class Settings:
     def __init__(self) -> None:
-        self.anthropic_api_key: str = os.environ.get("ANTHROPIC_API_KEY", "")
+        # .strip() matters here: this value goes straight into an HTTP header
+        # (x-api-key), and a stray trailing newline -- easy to pick up from a
+        # clipboard paste into a dashboard env var field -- makes httpx reject
+        # it outright as an illegal header value.
+        self.anthropic_api_key: str = os.environ.get("ANTHROPIC_API_KEY", "").strip()
         self.anthropic_model: str = os.environ.get("ANTHROPIC_MODEL", "claude-haiku-4-5-20251001")
         self.anthropic_base_url: str = os.environ.get(
             "ANTHROPIC_BASE_URL", "https://api.anthropic.com"
