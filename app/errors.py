@@ -48,7 +48,10 @@ def register_exception_handlers(app: FastAPI) -> None:
         # the client. It's still logged server-side (e.g. visible in Render's
         # Logs tab) since that's the only place this detail should be seen.
         logger.error(
-            "Anthropic API call failed: status=%s body=%s", exc.status_code, exc.anthropic_body
+            "Anthropic API call failed: status=%s body=%s reason=%s",
+            exc.status_code,
+            exc.anthropic_body,
+            str(exc),
         )
         return JSONResponse(
             status_code=502,
