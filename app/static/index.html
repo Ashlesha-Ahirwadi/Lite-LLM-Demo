@@ -1,33 +1,80 @@
 <title>Gateway Demo Console</title>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
   :root {
     --accent: #4f46e5;
-    --accent-dim: #eef0fd;
-    --bg: #f7f7f9;
+    --accent-2: #7c3aed;
+    --bg: #eef0f6;
     --panel: #ffffff;
-    --text: #1c1c1f;
-    --muted: #6b6b76;
-    --border: #e4e4e9;
-    --user-bubble: var(--accent);
-    --assistant-bubble: #f0f0f3;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    --panel-2: #fafafb;
+    --text: #191a23;
+    --muted: #6b6d80;
+    --border: #e6e7ef;
+    --assistant-bubble: #f1f2f7;
+    --shadow: 0 1px 2px rgba(20, 20, 40, 0.04), 0 12px 32px -12px rgba(20, 20, 50, 0.14);
+    --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    --font-mono: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --accent: #818cf8;
+      --accent-2: #a78bfa;
+      --bg: #0f1015;
+      --panel: #17181f;
+      --panel-2: #1c1d26;
+      --text: #eceef5;
+      --muted: #8d8fa3;
+      --border: #2a2b37;
+      --assistant-bubble: #23242f;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 20px 48px -16px rgba(0, 0, 0, 0.55);
+    }
   }
 
   * { box-sizing: border-box; }
 
+  html, body {
+    height: 100%;
+  }
+
   body {
     margin: 0;
-    background: var(--bg);
+    background:
+      radial-gradient(1200px 600px at 15% -10%, color-mix(in srgb, var(--accent) 12%, transparent), transparent),
+      radial-gradient(900px 500px at 100% 0%, color-mix(in srgb, var(--accent-2) 10%, transparent), transparent),
+      var(--bg);
     color: var(--text);
+    font-family: var(--font-sans);
+    display: flex;
+    justify-content: center;
+    padding: clamp(0px, 3vw, 32px);
+  }
+
+  .app {
+    width: 100%;
+    max-width: 760px;
     height: 100vh;
+    max-height: 920px;
     display: flex;
     flex-direction: column;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: clamp(0px, 1vw, 18px);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  @media (max-width: 620px) {
+    body { padding: 0; }
+    .app { border-radius: 0; border: none; max-height: none; }
   }
 
   header {
-    padding: 14px 20px;
+    padding: 16px 20px;
     border-bottom: 1px solid var(--border);
     background: var(--panel);
     display: flex;
@@ -36,175 +83,288 @@
     flex-wrap: wrap;
   }
 
+  .logo {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px -2px color-mix(in srgb, var(--accent) 55%, transparent);
+  }
+  .logo svg { width: 18px; height: 18px; }
+
   header h1 {
-    font-size: 16px;
+    font-size: 15.5px;
     margin: 0;
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: -0.01em;
   }
 
   header p {
     margin: 2px 0 0;
-    font-size: 12.5px;
+    font-size: 12px;
     color: var(--muted);
+    line-height: 1.4;
   }
 
-  .header-title { flex: 1 1 auto; min-width: 200px; }
+  header p code {
+    font-family: var(--font-mono);
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 11px;
+  }
+
+  .header-title { flex: 1 1 auto; min-width: 220px; display: flex; align-items: center; gap: 12px; }
 
   .header-controls {
     display: flex;
     align-items: center;
     gap: 8px;
+    flex-wrap: wrap;
   }
 
   label.field-label {
-    font-size: 12px;
+    font-size: 11.5px;
     color: var(--muted);
+    font-weight: 500;
   }
 
   input[type="text"],
   select {
     font: inherit;
-    padding: 7px 10px;
+    font-size: 13.5px;
+    padding: 8px 11px;
     border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--panel);
+    border-radius: 8px;
+    background: var(--panel-2);
     color: var(--text);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  input[type="text"]:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
   }
 
-  #mode-select { width: 230px; }
-
-  button {
-    font: inherit;
-    font-weight: 600;
-    padding: 8px 14px;
-    border-radius: 6px;
-    border: 1px solid transparent;
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+    background-position: calc(100% - 14px) 55%, calc(100% - 9px) 55%;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+    padding-right: 30px;
     cursor: pointer;
   }
 
+  #mode-select { width: 216px; }
+
+  button {
+    font: inherit;
+    font-size: 13.5px;
+    font-weight: 600;
+    padding: 8px 15px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.05s ease;
+  }
+  button:active { transform: scale(0.97); }
+
   #reset-btn {
-    background: var(--panel);
+    background: var(--panel-2);
     border-color: var(--border);
     color: var(--text);
   }
-  #reset-btn:hover { background: #f2f2f5; }
+  #reset-btn:hover { background: var(--assistant-bubble); }
 
   #send-btn {
-    background: var(--accent);
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
     color: white;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 8px -2px color-mix(in srgb, var(--accent) 60%, transparent);
   }
-  #send-btn:hover { background: #4338ca; }
-  #send-btn:disabled { background: #b7b3f5; cursor: default; }
+  #send-btn:hover { filter: brightness(1.06); }
+  #send-btn:disabled { background: var(--border); color: var(--muted); box-shadow: none; cursor: default; }
 
   main {
     flex: 1;
     overflow-y: auto;
-    padding: 20px;
+    padding: 22px 20px;
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 20px;
+    background: var(--bg);
+    scrollbar-width: thin;
   }
 
   .empty-state {
     margin: auto;
     text-align: center;
     color: var(--muted);
-    max-width: 420px;
-    font-size: 14px;
-    line-height: 1.5;
+    max-width: 440px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 24px;
+    box-shadow: var(--shadow);
+  }
+  .empty-state strong { color: var(--text); }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   .turn {
     display: flex;
     flex-direction: column;
-    max-width: 640px;
+    max-width: 82%;
+    animation: rise 0.22s ease both;
   }
   .turn.user { align-self: flex-end; align-items: flex-end; }
   .turn.assistant { align-self: flex-start; align-items: flex-start; }
-  .turn.error { align-self: center; align-items: center; max-width: 90%; }
+  .turn.error { align-self: center; align-items: center; max-width: 92%; }
+
+  .turn-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+  }
+  .turn.user .turn-row { flex-direction: row-reverse; }
+
+  .avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+  }
+  .turn.user .avatar { background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+  .turn.assistant .avatar { background: #6b6d80; }
 
   .bubble {
-    padding: 10px 14px;
-    border-radius: 14px;
+    padding: 11px 15px;
+    border-radius: 16px;
     font-size: 14.5px;
-    line-height: 1.45;
+    line-height: 1.5;
     white-space: pre-wrap;
     word-break: break-word;
+    box-shadow: var(--shadow);
   }
   .turn.user .bubble {
-    background: var(--user-bubble);
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
     color: white;
-    border-bottom-right-radius: 4px;
+    border-bottom-right-radius: 5px;
   }
   .turn.assistant .bubble {
     background: var(--assistant-bubble);
     color: var(--text);
-    border-bottom-left-radius: 4px;
+    border-bottom-left-radius: 5px;
+    box-shadow: none;
+    border: 1px solid var(--border);
   }
   .turn.error .bubble {
-    background: #fdecec;
-    color: #9c1c1c;
-    border: 1px solid #f3c8c8;
+    background: color-mix(in srgb, #ef4444 10%, var(--panel));
+    color: #ef4444;
+    border: 1px solid color-mix(in srgb, #ef4444 30%, var(--border));
+    font-size: 13px;
   }
 
   .badge-row {
     display: flex;
     gap: 6px;
-    margin-top: 5px;
+    margin-top: 6px;
+    margin-left: 34px;
     flex-wrap: wrap;
   }
   .badge {
-    font-family: "SF Mono", Menlo, Consolas, monospace;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--font-mono);
     font-size: 10.5px;
     color: var(--muted);
     background: var(--panel);
     border: 1px solid var(--border);
-    padding: 2px 7px;
-    border-radius: 10px;
+    padding: 3px 8px;
+    border-radius: 20px;
   }
-  .badge.mode-gateway { color: #1a7f37; border-color: #bfe6c9; background: #eefbf1; }
-  .badge.mode-direct { color: #9c1c1c; border-color: #f3c8c8; background: #fdecec; }
+  .badge::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.6;
+  }
+  .badge.mode-gateway { color: #15916b; border-color: color-mix(in srgb, #15916b 35%, var(--border)); background: color-mix(in srgb, #15916b 10%, var(--panel)); }
+  .badge.mode-direct { color: #e0554a; border-color: color-mix(in srgb, #e0554a 35%, var(--border)); background: color-mix(in srgb, #e0554a 10%, var(--panel)); }
 
   details.inspector {
     margin-top: 6px;
+    margin-left: 34px;
     max-width: 100%;
   }
+  .turn.user details.inspector { margin-left: 0; margin-right: 34px; }
   details.inspector summary {
     cursor: pointer;
-    font-size: 11.5px;
+    font-size: 11px;
     color: var(--accent);
     font-weight: 600;
     list-style: none;
     user-select: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
   }
   details.inspector summary::-webkit-details-marker { display: none; }
   details.inspector summary::before {
-    content: "▸ ";
+    content: "▸";
+    display: inline-block;
+    transition: transform 0.15s ease;
+    font-size: 9px;
   }
   details.inspector[open] summary::before {
-    content: "▾ ";
+    transform: rotate(90deg);
   }
   details.inspector pre {
-    margin: 6px 0 0;
-    padding: 10px 12px;
-    background: #1e1e24;
-    color: #d7d7de;
-    border-radius: 8px;
-    font-family: "SF Mono", Menlo, Consolas, monospace;
-    font-size: 11.5px;
-    line-height: 1.5;
+    margin: 7px 0 0;
+    padding: 11px 13px;
+    background: #14151c;
+    color: #d3d5e3;
+    border-radius: 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1.6;
     overflow-x: auto;
-    max-width: 560px;
+    max-width: 480px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
   }
   details.inspector .inspector-caption {
-    font-size: 11px;
+    font-size: 10.5px;
     color: var(--muted);
     font-weight: 400;
-    margin-left: 4px;
+    margin-left: 2px;
   }
 
   footer {
-    padding: 14px 20px 18px;
+    padding: 16px 20px 20px;
     border-top: 1px solid var(--border);
     background: var(--panel);
     display: flex;
@@ -212,52 +372,93 @@
   }
   #message-input {
     flex: 1;
-    padding: 10px 14px;
+    padding: 11px 15px;
     font-size: 14.5px;
+    border-radius: 10px;
   }
+  #send-btn { border-radius: 10px; padding: 8px 18px; }
 
   .typing {
     align-self: flex-start;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 34px;
     color: var(--muted);
-    font-size: 13px;
-    font-style: italic;
+    font-size: 12.5px;
+  }
+  .typing-dots {
+    display: inline-flex;
+    gap: 3px;
+    padding: 9px 12px;
+    background: var(--assistant-bubble);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    border-bottom-left-radius: 5px;
+  }
+  .typing-dots span {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--muted);
+    animation: bounce 1.2s infinite ease-in-out;
+  }
+  .typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+    30% { transform: translateY(-3px); opacity: 1; }
   }
 </style>
 
 <body>
-  <header>
-    <div class="header-title">
-      <h1>Gateway Demo Console</h1>
-      <p>Talks only to this gateway's own <code>/v1/responses</code> — the Anthropic key never reaches your browser.</p>
-    </div>
-    <div class="header-controls">
-      <label class="field-label" for="mode-select">mode</label>
-      <select id="mode-select">
-        <option value="anthropic-gateway" selected>Through gateway — remembers</option>
-        <option value="anthropic-direct">Direct to model — forgets</option>
-      </select>
-      <button id="reset-btn" type="button">New conversation</button>
-    </div>
-  </header>
+  <div class="app">
+    <header>
+      <div class="header-title">
+        <div class="logo">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2 L14.2 9.2 L21 12 L14.2 14.8 L12 22 L9.8 14.8 L3 12 L9.8 9.2 Z" fill="white" fill-opacity="0.95" />
+          </svg>
+        </div>
+        <div>
+          <h1>Gateway Demo Console</h1>
+          <p>Talks only to this gateway's own <code>/v1/responses</code> — the Anthropic key never reaches your browser.</p>
+        </div>
+      </div>
+      <div class="header-controls">
+        <label class="field-label" for="mode-select">mode</label>
+        <select id="mode-select">
+          <option value="anthropic-gateway" selected>Through gateway — remembers</option>
+          <option value="anthropic-direct">Direct to model — forgets</option>
+        </select>
+        <button id="reset-btn" type="button">New conversation</button>
+      </div>
+    </header>
 
-  <main id="chat">
-    <div class="empty-state" id="empty-state">
-      Both modes hit the exact same Anthropic model underneath — the dropdown only
-      changes gateway behavior. Send a message, then a follow-up that depends on it
-      (e.g. tell it a fact, then ask about that fact). In <strong>Through gateway</strong>
-      mode the follow-up correctly recalls it; in <strong>Direct to model</strong> mode it
-      won't, even though the request panel below shows the browser sent the exact
-      same short line plus id both times. That's the gateway's session layer at work,
-      not the model "remembering."
-    </div>
-  </main>
+    <main id="chat">
+      <div class="empty-state" id="empty-state">
+        Both modes hit the exact same Anthropic model underneath — the dropdown only
+        changes gateway behavior. Send a message, then a follow-up that depends on it
+        (e.g. tell it a fact, then ask about that fact). In <strong>Through gateway</strong>
+        mode the follow-up correctly recalls it; in <strong>Direct to model</strong> mode it
+        won't, even though the request panel below shows the browser sent the exact
+        same short line plus id both times. That's the gateway's session layer at work,
+        not the model "remembering."
+      </div>
+    </main>
 
-  <footer>
-    <form id="chat-form" style="display: contents;">
-      <input type="text" id="message-input" placeholder="Type a message…" autocomplete="off" />
-      <button id="send-btn" type="submit">Send</button>
-    </form>
-  </footer>
+    <footer>
+      <form id="chat-form" style="display: contents;">
+        <input type="text" id="message-input" placeholder="Type a message…" autocomplete="off" />
+        <button id="send-btn" type="submit">
+          <span>Send</span>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 12H20M20 12L14 6M20 12L14 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+      </form>
+    </footer>
+  </div>
 
   <script>
     const chat = document.getElementById("chat");
@@ -284,29 +485,46 @@
       const turn = document.createElement("div");
       turn.className = `turn ${role}`;
 
-      const bubble = document.createElement("div");
-      bubble.className = "bubble";
-      bubble.textContent = text;
-      turn.appendChild(bubble);
+      if (role === "error") {
+        const bubble = document.createElement("div");
+        bubble.className = "bubble";
+        bubble.textContent = text;
+        turn.appendChild(bubble);
+      } else {
+        const row = document.createElement("div");
+        row.className = "turn-row";
+
+        const avatar = document.createElement("div");
+        avatar.className = "avatar";
+        avatar.textContent = role === "user" ? "U" : "A";
+        row.appendChild(avatar);
+
+        const bubble = document.createElement("div");
+        bubble.className = "bubble";
+        bubble.textContent = text;
+        row.appendChild(bubble);
+
+        turn.appendChild(row);
+      }
 
       if (role === "assistant" && (responseId || mode)) {
-        const row = document.createElement("div");
-        row.className = "badge-row";
+        const badgeRow = document.createElement("div");
+        badgeRow.className = "badge-row";
 
         if (mode) {
           const modeBadge = document.createElement("div");
           modeBadge.className = `badge ${mode === "anthropic-direct" ? "mode-direct" : "mode-gateway"}`;
           modeBadge.textContent = MODE_LABELS[mode] || mode;
-          row.appendChild(modeBadge);
+          badgeRow.appendChild(modeBadge);
         }
         if (responseId) {
           const idBadge = document.createElement("div");
           idBadge.className = "badge";
           idBadge.textContent = `id: ${responseId}`;
-          row.appendChild(idBadge);
+          badgeRow.appendChild(idBadge);
         }
 
-        turn.appendChild(row);
+        turn.appendChild(badgeRow);
       }
 
       if (requestBody) {
@@ -338,7 +556,7 @@
       const el = document.createElement("div");
       el.className = "typing";
       el.id = "typing-indicator";
-      el.textContent = "Waiting for the gateway…";
+      el.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div> Waiting for the gateway…';
       chat.appendChild(el);
       chat.scrollTop = chat.scrollHeight;
     }
