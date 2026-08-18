@@ -10,6 +10,8 @@ HTTPExceptions) into that shape -- route/business logic just raises the
 exception that matches what went wrong and doesn't know about response
 formatting.
 """
+import logging
+
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -17,6 +19,8 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.anthropic_client import AnthropicAPIError
 from app.session import SessionNotFoundError
+
+logger = logging.getLogger("gateway.errors")
 
 
 def error_body(message: str, *, type_: str, param: str | None = None, code: str | None = None) -> dict:
@@ -39,8 +43,13 @@ def register_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(AnthropicAPIError)
     async def handle_anthropic_error(request: Request, exc: AnthropicAPIError) -> JSONResponse:
-        # Deliberately generic: exc.anthropic_body may contain Anthropic's raw
-        # error text, which Section 10 says must not leak to the client.
+        # Deliberately generic to the client: exc.anthropic_body may contain
+        # Anthropic's raw error text, which Section 10 says must not leak to
+        # the client. It's still logged server-side (e.g. visible in Render's
+        # Logs tab) since that's the only place this detail should be seen.
+        logger.error(
+            "Anthropic API call failed: status=%s body=%s", exc.status_code, exc.anthropic_body
+        )
         return JSONResponse(
             status_code=502,
             content=error_body(
